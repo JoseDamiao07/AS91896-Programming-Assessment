@@ -15,6 +15,34 @@ pizzas = {
 
 orders = {}
 
+def show_pizzas(customer):
+  index = 1
+  print()
+  for pizza_type in orders[customer]:
+    what_pizza = pizza_type[0]
+    how_many = pizza_type[1]
+    price = pizzas[what_pizza]
+    total_price = how_many * pizzas[what_pizza]
+    print("{}. {}, ${:.2f} x {} - ${:.2f}"
+          .format(index, what_pizza, price, how_many, total_price))
+    index += 1
+
+def view_current_order(customer):
+  index = 1
+  print()
+  order_price = 0
+  for pizza_type in orders[customer]:
+    what_pizza = pizza_type[0]
+    how_many = pizza_type[1]
+    price = pizzas[what_pizza]
+    total_price = how_many * pizzas[what_pizza]
+    order_price += total_price
+    print("{}. {}, ${:.2f} x {} - ${:.2f} (enter {} to remove)"
+          .format(index, what_pizza, price, how_many, total_price, index))
+    index += 1
+  print("{}. Total - ${}".format(index, order_price))
+  print("{}. Return (enter {})".format(index + 1, index + 1))
+
 def choice_verification(min, max):
   while True:
     try:
@@ -24,7 +52,6 @@ def choice_verification(min, max):
       print("\nSorry, that isn't an option. Please try again.")
     except ValueError:
       print("\nSorry, that isn't an option. Please try again.")
-
 
 print("Welcome to the Crusty Pizzas' Pizza Program!")
 while True:
@@ -43,31 +70,42 @@ while True:
       customer_name = input("\nWhat is the customer's name?\n\n>>> ")
       print("\nHow many pizzas would the customer like?")
       pizza_amount = choice_verification(1, 5)
-      print("\n1. Choose pizza to add (enter 1)")
-      print("2. View current order (enter 2)")
-      print("3. Finish order (enter 3)")
-      print("4. Cancel order (enter 4)")
-      function_choice = choice_verification(1, 4)
-      if function_choice == 1:
-        i = 1
-        print()
-        for pizza, price in pizzas.items():
-          print("{}. {}, ${:.2f} (enter {})".format(i, pizza, price, i))
-          i += 1
-        print("{}. Cancel (enter {})".format(len(pizzas) + 1, len(pizzas) + 1))
-        pizza_choice = choice_verification(1, len(pizzas) + 1)
-        if pizza_choice < len(pizzas):
-          print("\nHow many {} pizzas would the customer like?"
-                .format(list(pizzas)[pizza_choice - 1]))
-          chosen_pizza_amount = choice_verification(1, pizza_amount)
-          orders[customer_name].append(
-            [list(pizzas)[pizza_choice - 1], chosen_pizza_amount])
-      elif function_choice == 2:
-        print("fungus2")
-      elif function_choice == 3:
-        print("fungus3")
-      elif function_choice == 4:
-        print("fungus4")
+      orders[customer_name] = []
+      while True:
+        print("\n1. Choose pizza to add (enter 1)")
+        print("2. View current order (enter 2)")
+        print("3. Finish order (enter 3)")
+        print("4. Cancel order (enter 4)")
+        function_choice = choice_verification(1, 4)
+        if function_choice == 1:
+          i = 1
+          print()
+          for pizza, price in pizzas.items():
+            print("{}. {}, ${:.2f} (enter {})".format(i, pizza, price, i))
+            i += 1
+          print("{}. Cancel (enter {})".format(len(pizzas) + 1, len(pizzas) + 1))
+          pizza_choice = choice_verification(1, len(pizzas) + 1)
+          if pizza_choice < len(pizzas):
+            print("\nHow many {} pizzas would the customer like?"
+                  .format(list(pizzas)[pizza_choice - 1]))
+            chosen_pizza_amount = choice_verification(1, pizza_amount)
+            orders[customer_name].append(
+              [list(pizzas)[pizza_choice - 1], chosen_pizza_amount])
+            pizza_amount -= chosen_pizza_amount
+        elif function_choice == 2:
+          while True:
+            view_current_order(customer_name)
+            order_function_choice = choice_verification(
+              1, len(orders[customer_name]) + 1)
+            if order_function_choice == len(orders[customer_name]) + 2:
+              break
+            else:
+              pizza_amount += orders[customer_name][order_function_choice - 1]
+              orders[customer_name].pop(order_function_choice - 1)
+        elif function_choice == 3:
+          print("fungus3")
+        elif function_choice == 4:
+          break
     elif order_type == 2:
       customer_name = input("\nWhat is the customer's name?\n\n>>> ")
       customer_address = input("\nWhat is the customer's address?\n\n>>> ")
