@@ -175,6 +175,13 @@ def order_menu(pizza_amount, customer_name):
           order_price += pizzas[item[0]] * item[1]
           # Increments index. 
           i += 1
+        # If the order is for delivery.
+        if details[customer_name] == 2:
+          # Prints the delivery charge.
+          print("\t{}. Delivery charge - $2.50".format(i))
+          # Adds delivery charge to the total order price. 
+          order_price += 2.5
+          i += 1
         # Prints the total price of the order. 
         print("\t{}. Total - ${:.2f}".format(i, order_price))
         # Prints the return option.
@@ -186,8 +193,9 @@ def order_menu(pizza_amount, customer_name):
         # len(orders[customer_name] + 2) is the second option after all the pizzas.
         if current_order_choice == len(orders[customer_name]) + 2:
           break
-        # If the user chose the total price (not an option).
-        elif current_order_choice == len(orders[customer_name]) + 1:
+        # If the user chose the total price or delivery charge (not an option).
+        elif (current_order_choice == len(orders[customer_name]) + 1 or 
+              current_order_choice == len(orders[customer_name]) + 2):
           print("\nSorry, that isn't an option, please try again.")
         # If the user chose to remove a pizza from the list.
         else:
@@ -234,8 +242,13 @@ def order_menu(pizza_amount, customer_name):
           i += 1
           # Adds pizza_price x amount to the total order price.
           order_price += pizzas[item[0]] * item[1]
-          # Adds the amount of specified pizza in the order to the total pizzas sold.
-          pizzas_sold[item[0]] += item[1]
+        # If the order is for delivery.
+        if details[customer_name] == 2:
+          # Prints the delivery charge.
+          print("\t{}. Delivery charge - $2.50".format(i))
+          # Adds delivery charge to the total order price. 
+          order_price += 2.5
+          i += 1
         # Prints the total price of the order.
         print("\t{}. Total - ${:.2f}".format(i, order_price))
         print("\t{}. Finish and add order (enter {})".format(i + 1, i + 1))
@@ -244,9 +257,12 @@ def order_menu(pizza_amount, customer_name):
         current_order_decision = user_choice(i, i + 2, 
                                 "\nSorry, that isn't an option, please try again.")
         # If their choice is to finish order, break the loop. 
-        # Don't need to handle return option, just loops back.
         if current_order_decision == i + 1:
+          for item in orders[customer_name]:
+            # Adds the amount of specified pizza in the order to the total pizzas sold.
+            pizzas_sold[item[0]] += item[1]
           break
+        # Don't need to handle return option, just loops back.
     # If the user chooses to cancel the order.
     else:
       print("\nAre you sure you want to cancel the order?")
@@ -264,6 +280,8 @@ def view_orders():
   """This function displays every order in the orders dictionary."""
   # For every customer and their order in the orders dictionary.
   for name, order in orders.items():
+    # Index variable.
+    i = 1
     # Set the total order price to 0.
     order_price = 0
     # If the order is for pickup.
@@ -284,14 +302,16 @@ def view_orders():
     # For every pizza in their order.
     for pizza in order:
       # Print the pizza, amount, and total price like so:
-      #  -  Cheese x 5 - $42.50
-      # .format is (pizza_name, pizza_amount, pizza_price x pizza_amount).
-      print("  -  {} x {} - ${:.2f}"
-            .format(pizza[0], pizza[1], pizzas[pizza[0]] * pizza[1]))
+      # 1. Cheese x 5 - $42.50
+      # (index, pizza_name, pizza_price, pizza_amount, pizza_price x pizza_amount).
+      print("\t{}. {}, ${:.2f} x {} - ${:.2f}"
+      .format(i, pizza[0], pizzas[pizza[0]], pizza[1], pizzas[pizza[0]] * pizza[1]))
       # Adds pizza_price x pizza_amount to the total order price.
       order_price += pizzas[pizza[0]] * pizza[1]
+      # Increments index.
+      i += 1
     # Prints total order price.
-    print("  -  Total - ${:.2f}".format(order_price))
+    print("\t{}. Total - ${:.2f}".format(i, order_price))
 
 # Function to provide the amount of pizzas sold and profit made.
 def management_summary():
@@ -333,9 +353,10 @@ def management_summary():
         .format(i + 2, regular_sold + gourmet_sold, 
                 (8.50 * regular_sold) + (13.50 * gourmet_sold)))
 
+print("Welcome to the Crusty Pizzas' Pizza Program!")
+
 # Main loop.
 while True:
-  print("Welcome to the Crusty Pizzas' Pizza Program!")
   # Runs the main menu function and stores the result.
   main_choice = main_menu()
   # If the result was 1 (begin an order).
