@@ -80,7 +80,7 @@ def create_order(order_type):
   # If their order is for pickup.
   if order_type == 1:
     # Creates the customer's order in the orders dictionary with their name.
-    orders[customer_name] = []
+    orders[customer_name] = {}
     # Adds the customer's details to the details dictionary, but as it is for pickup
     # it only adds the type of order. 
     details[customer_name] = [1]
@@ -91,7 +91,7 @@ def create_order(order_type):
     # Gets the customer's phone number and removes trailing spaces. 
     customer_number = input("\nWhat is the customer's phone number?\n\n>>> ").strip()
     # Creates the customer's order in the order dictionary with their name. 
-    orders[customer_name] = []
+    orders[customer_name] = {}
     # Adds the customer's details to the details dictionary.
     details[customer_name] = [2, customer_address, customer_number]
   # Gets how many pizzas the customer would like
@@ -144,10 +144,16 @@ def order_menu(pizza_amount, customer_name):
                 .format(list(pizzas)[pizza_choice - 1]))
           chosen_pizza_amount = user_choice(1, pizza_amount, 
           "\nSorry, the customer can only add {} more pizzas.".format(pizza_amount))
-          # Adds their chosen pizza to the their item in the dictionary.
-          # Again, converts the pizzas dictionary to a list, - 1 to grab the pizza name.
-          orders[customer_name].append(
-          [list(pizzas)[pizza_choice - 1], chosen_pizza_amount])
+          # If their order already contains the chosen pizza.
+          if list(pizzas)[pizza_choice - 1] in orders[customer_name]:
+            # Adds their chosen pizza amount to the already existing pizza in the order.
+            orders[customer_name][list(pizzas)[pizza_choice - 1]] += chosen_pizza_amount
+          # If their order doesn't already contain the chosen pizza. 
+          else:
+            # Adds their chosen pizza to the their dictionary.
+            # Again, converts the pizzas dictionary to a list, - 1
+            # to grab the pizza name.
+            orders[customer_name][list(pizzas)[pizza_choice - 1]] = chosen_pizza_amount
           # Subtracts the chosen pizza amount from the customers total amount of pizzas.
           pizza_amount -= chosen_pizza_amount
         # If they choose to cancel the order, it doesn't need an else, just loops back. 
@@ -164,15 +170,15 @@ def order_menu(pizza_amount, customer_name):
         order_price = 0 
         # Line for formatting.
         print()
-        # For each pizza in the customer's order.
-        for item in orders[customer_name]:
+        # For each pizza and amount in the customer's order.
+        for pizza, amount in orders[customer_name].items():
           # Prints the pizza, the quantity and the price, like so:
           #   1. Cheese, $8.50 x 5 - $42.50 (enter 1 to remove)
           # (index, pizza_name, pizza_price, pizza_amount, pizza_amount * price, index).
           print("\t{}. {}, ${:.2f} x {} - ${:.2f} (enter {} to remove)"
-          .format(i, item[0], pizzas[item[0]], item[1], pizzas[item[0]] * item[1], i))
+          .format(i, pizza, pizzas[pizza], amount, pizzas[pizza] * amount, i))
           # Adds the pizza amount x the pizza price to the total order price.
-          order_price += pizzas[item[0]] * item[1]
+          order_price += pizzas[pizza] * amount
           # Increments index. 
           i += 1
         # If the order is for delivery.
@@ -200,11 +206,11 @@ def order_menu(pizza_amount, customer_name):
         # If the user chose to remove a pizza from the list.
         else:
           # Adds back pizzas to their amount left.
-          # the_customers_order[specified_pizza][amount_of_specified pizza]
-          pizza_amount += orders[customer_name][current_order_choice - 1][1]
+          # the_customers_order[amount_of_specified pizza]
+          pizza_amount += orders[customer_name][list(pizzas)[current_order_choice - 1]]
           # Removes the pizza from the order.
           # - 1 because lists start at 0 while the choices don't.
-          orders[customer_name].pop(current_order_choice - 1)
+          orders[customer_name].pop(list(pizzas)[current_order_choice - 1])
     # If they choose to finish the order. 
     elif order_menu_choice == 3:
       # Confirm to finish order variable.
@@ -231,17 +237,17 @@ def order_menu(pizza_amount, customer_name):
           print("{}, {}".format(details[customer_name][1], details[customer_name][2]))
         # Index variable.
         i = 1
-        # For each pizza in the customer's order. 
-        for item in orders[customer_name]:
+        # For each pizza and amount in the customer's order. 
+        for pizza, amount in orders[customer_name].items():
           # Prints the pizza, price and quantity like so:
           # 1. Cheese, $8.50 x 2 - $17.00
           # (index, pizza_name, pizza_price, pizza_amount, pizza_price x amount).
           print("\t{}. {}, ${:.2f} x {} - ${:.2f}"
-          .format(i, item[0], pizzas[item[0]], item[1], pizzas[item[0]] * item[1]))
+          .format(i, pizza, pizzas[pizza], amount, pizzas[pizza] * amount))
           # Increments index variable.
           i += 1
           # Adds pizza_price x amount to the total order price.
-          order_price += pizzas[item[0]] * item[1]
+          order_price += pizzas[pizza] * amount
         # If the order is for delivery.
         if details[customer_name] == 2:
           # Prints the delivery charge.
@@ -258,9 +264,9 @@ def order_menu(pizza_amount, customer_name):
                                 "\nSorry, that isn't an option, please try again.")
         # If their choice is to finish order, break the loop. 
         if current_order_decision == i + 1:
-          for item in orders[customer_name]:
+          for pizza, amount in orders[customer_name].items():
             # Adds the amount of specified pizza in the order to the total pizzas sold.
-            pizzas_sold[item[0]] += item[1]
+            pizzas_sold[pizza] += amount
           break
         # Don't need to handle return option, just loops back.
     # If the user chooses to cancel the order.
@@ -299,15 +305,15 @@ def view_orders():
       print("{} - Delivery".format(name.capitalize()))
       # Grabs the customer's details.
       print("{}, {}".format(details[name][1], details[name][2]))
-    # For every pizza in their order.
-    for pizza in order:
+    # For every pizza and amount in their order.
+    for pizza, amount in order.items():
       # Print the pizza, amount, and total price like so:
       # 1. Cheese x 5 - $42.50
       # (index, pizza_name, pizza_price, pizza_amount, pizza_price x pizza_amount).
       print("\t{}. {}, ${:.2f} x {} - ${:.2f}"
-      .format(i, pizza[0], pizzas[pizza[0]], pizza[1], pizzas[pizza[0]] * pizza[1]))
+      .format(i, pizza, pizzas[pizza], amount, pizzas[pizza] * amount))
       # Adds pizza_price x pizza_amount to the total order price.
-      order_price += pizzas[pizza[0]] * pizza[1]
+      order_price += pizzas[pizza] * amount
       # Increments index.
       i += 1
     # Prints total order price.
