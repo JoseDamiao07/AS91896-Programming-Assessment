@@ -134,7 +134,7 @@ def order_menu(pizza_amount, customer_name):
         print("\t{}. Cancel (enter {})".format(i, i))
         # Gets the customer's choice of pizza to add. 
         pizza_choice = user_choice(1, i, 
-        "\nSorry, that isn't an option, please try again.\n")
+        "\nSorry, that isn't an option, please try again.")
         # If their choice isn't to cancel adding a pizza.
         if pizza_choice < i:
           # Gets how many of the specified pizza the customer would like.
@@ -182,7 +182,7 @@ def order_menu(pizza_amount, customer_name):
           # Increments index. 
           i += 1
         # If the order is for delivery.
-        if details[customer_name] == 2:
+        if details[customer_name][0] == 2:
           # Prints the delivery charge.
           print("\t{}. Delivery charge - $2.50".format(i))
           # Adds delivery charge to the total order price. 
@@ -193,24 +193,25 @@ def order_menu(pizza_amount, customer_name):
         # Prints the return option.
         print("\t{}. Return (enter {})".format(i + 1, i + 1))
         # Gets the users choice
-        current_order_choice = user_choice(1, len(orders[customer_name]) + 2, 
+        current_order_choice = user_choice(1, i + 1, 
                      "\nSorry, that isn't an option, please try again.")
         # If the user's choice was to return to the previous menu.
-        # len(orders[customer_name] + 2) is the second option after all the pizzas.
-        if current_order_choice == len(orders[customer_name]) + 2:
+        if current_order_choice == i + 1:
           break
-        # If the user chose the total price or delivery charge (not an option).
-        elif (current_order_choice == len(orders[customer_name]) + 1 or 
-              current_order_choice == len(orders[customer_name]) + 2):
+        # If the user chose the total price or the delivery charge (not an option).
+        elif (current_order_choice == i or
+              (current_order_choice == i - 1 and details[customer_name][0] == 2)):
           print("\nSorry, that isn't an option, please try again.")
         # If the user chose to remove a pizza from the list.
         else:
           # Adds back pizzas to their amount left.
           # the_customers_order[amount_of_specified pizza]
-          pizza_amount += orders[customer_name][list(pizzas)[current_order_choice - 1]]
+          pizza_amount += orders[customer_name][list(
+            orders[customer_name].keys())[current_order_choice - 1]]
           # Removes the pizza from the order.
           # - 1 because lists start at 0 while the choices don't.
-          orders[customer_name].pop(list(pizzas)[current_order_choice - 1])
+          orders[customer_name].pop(
+            list(orders[customer_name])[current_order_choice - 1])
     # If they choose to finish the order. 
     elif order_menu_choice == 3:
       # Confirm to finish order variable.
@@ -249,7 +250,7 @@ def order_menu(pizza_amount, customer_name):
           # Adds pizza_price x amount to the total order price.
           order_price += pizzas[pizza] * amount
         # If the order is for delivery.
-        if details[customer_name] == 2:
+        if details[customer_name][0] == 2:
           # Prints the delivery charge.
           print("\t{}. Delivery charge - $2.50".format(i))
           # Adds delivery charge to the total order price. 
